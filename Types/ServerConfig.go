@@ -1,1 +1,5 @@
-package types
+package Types
+
+type ServerConfig struct {
+	Port int
+}
