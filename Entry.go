@@ -8,7 +8,7 @@ import (
 	"github.com/LoliE1ON/go/Helpers/ConfigHelper"
 	"github.com/LoliE1ON/go/Router"
 
-	"github.com/LoliE1ON/go/Net/Db/MongoDb"
+	"github.com/LoliE1ON/go/Net/Db/Mongo"
 
 	"github.com/pkg/errors"
 
@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// Connection to MongoDB
-	err = MongoDb.Connect(config.Mongo)
+	err = Mongo.Connect(config.Mongo)
 	if err != nil {
 		err = errors.Wrap(err, "Error connection to MongoDB")
 		log.Println(err)

@@ -1,8 +1,8 @@
 package Types
 
-import "github.com/LoliE1ON/go/Net/Db/MongoDb"
+import "github.com/LoliE1ON/go/Net/Db/Mongo"
 
 type ServerConfig struct {
 	Port  int
-	Mongo MongoDb.Config
+	Mongo Mongo.Config
 }

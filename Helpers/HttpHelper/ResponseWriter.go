@@ -17,6 +17,8 @@ func ResponseWriter(data Types.ResponseData, w http.ResponseWriter) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+
 	if _, err = w.Write(jsonBytes); err != nil {
 		log.Println("Writing response failed:", err)
 	}

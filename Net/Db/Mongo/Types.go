@@ -1,4 +1,4 @@
-package MongoDb
+package Mongo
 
 type Config struct {
 	ConnectionString string
