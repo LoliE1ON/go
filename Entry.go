@@ -1,13 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
+	"github.com/LoliE1ON/go/Helpers/ConfigHelper"
 	"github.com/LoliE1ON/go/Router"
 
 	"github.com/LoliE1ON/go/Net/Db/MongoDb"
@@ -15,8 +13,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gorilla/mux"
-
-	"github.com/LoliE1ON/go/Types"
 )
 
 func main() {
@@ -28,7 +24,7 @@ func main() {
 	}()
 
 	// Parsing config file
-	config, err := parseConfig()
+	config, err := ConfigHelper.ParseConfig()
 	if err != nil {
 		log.Println(err)
 		return
@@ -53,32 +49,4 @@ func main() {
 		log.Println("Starting server failed: ", err)
 	}
 
-}
-
-// Parse config file
-func parseConfig() (config Types.ServerConfig, err error) {
-
-	const configFilePath = "serverConfig.json"
-
-	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
-		jsonBytes, err := json.MarshalIndent(config, "", "\t")
-		if err != nil {
-			return config, errors.Wrap(err, fmt.Sprintf("Marshaling config error (%s)", configFilePath))
-		}
-
-		if err := ioutil.WriteFile(configFilePath, jsonBytes, 0644); err != nil {
-			return config, errors.Wrap(err, fmt.Sprintf("Write in config data file error (%s)", configFilePath))
-		}
-	} else {
-		jsonData, err := ioutil.ReadFile(configFilePath)
-		if err != nil {
-			return config, errors.Wrap(err, fmt.Sprintf("Read config file error (%s)", configFilePath))
-		}
-
-		if err := json.Unmarshal(jsonData, &config); err != nil {
-			return config, errors.Wrap(err, fmt.Sprintf("Unmarshal config file error (%s)", configFilePath))
-		}
-	}
-
-	return
 }
