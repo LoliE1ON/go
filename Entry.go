@@ -23,8 +23,8 @@ func main() {
 		}
 	}()
 
-	// Parsing config file
-	config, err := ConfigHelper.ParseConfig()
+	// Get config file
+	config, err := ConfigHelper.GetConfig()
 	if err != nil {
 		log.Println(err)
 		return

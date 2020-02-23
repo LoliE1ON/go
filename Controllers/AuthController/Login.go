@@ -8,12 +8,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/LoliE1ON/go/Strategies/JwtStrategy"
+
 	"github.com/LoliE1ON/go/Models/UserModel"
 
 	"github.com/LoliE1ON/go/Helpers/HttpHelper"
 	"github.com/LoliE1ON/go/Types"
 )
 
+// User login
 func LoginAction(w http.ResponseWriter, r *http.Request) {
 
 	var response Types.ResponseData
@@ -47,13 +50,20 @@ func LoginAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Data = user
+	token, err := JwtStrategy.CreateToken(user.UserId)
+	if err != nil {
+		log.Println("Failed to create JW Token:", err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	response.Data = token
 	HttpHelper.ResponseWriter(w, response, http.StatusOK)
 
 }
 
 // Convert password to MD5 Hash
-// md5 -_-
+// TODO: Replace to Bcrypt, create helper
 func passwordToHash(text string) string {
 	hash := md5.New()
 	hash.Write([]byte(text))
