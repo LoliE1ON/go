@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/LoliE1ON/go/Models/TokenModel"
+
 	"github.com/LoliE1ON/go/Strategies/JwtStrategy"
 
 	"github.com/LoliE1ON/go/Models/UserModel"
@@ -50,6 +52,7 @@ func LoginAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Create new token
 	token, err := JwtStrategy.CreateToken(user.UserId)
 	if err != nil {
 		log.Println("Failed to create JW Token:", err)
@@ -57,7 +60,25 @@ func LoginAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Data = token
+	insertToken := TokenModel.UserToken{
+		UserId: user.UserId,
+		Token:  token,
+	}
+
+	// Save token to db
+	err = TokenModel.Insert(&insertToken)
+	if err != nil {
+		log.Println("Failed to insert JW Token:", err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	data := ResponseSuccess{
+		User:  user,
+		Token: insertToken,
+	}
+
+	response.Data = data
 	HttpHelper.ResponseWriter(w, response, http.StatusOK)
 
 }

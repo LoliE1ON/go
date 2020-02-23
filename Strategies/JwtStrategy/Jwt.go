@@ -2,6 +2,7 @@ package JwtStrategy
 
 import (
 	"log"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -19,8 +20,16 @@ func CreateToken(userId primitive.ObjectID) (tokenString string, err error) {
 		return
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId": userId,
+	type MyCustomClaims struct {
+		UserId primitive.ObjectID `json:"userId"`
+		jwt.StandardClaims
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, MyCustomClaims{
+		userId,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Unix() + (config.JwtExpHours * 3600),
+		},
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
