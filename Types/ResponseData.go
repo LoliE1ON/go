@@ -1,6 +1,6 @@
 package Types
 
 type ResponseData struct {
-	Error string
+	Error interface{}
 	Data  interface{}
 }

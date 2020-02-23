@@ -10,6 +10,13 @@ type LoginRequestParams struct {
 	Password string
 }
 
+type RegisterRequestParams struct {
+	Login    string `validate:"required,max=20,min=4"`
+	Name     string `validate:"required"`
+	Email    string `validate:"required,email"`
+	Password string `validate:"required,max=40,min=6"`
+}
+
 type ResponseSuccess struct {
 	User  UserModel.User
 	Token TokenModel.UserToken

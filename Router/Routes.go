@@ -10,6 +10,7 @@ import (
 func Routes(router *mux.Router) {
 
 	router.HandleFunc("/", IndexController.Action).Methods("GET")
-	router.HandleFunc("/auth/login", AuthController.LoginAction).Methods("POST")
 
+	router.HandleFunc("/auth/login", AuthController.LoginAction).Methods("POST")
+	router.HandleFunc("/auth/register", AuthController.RegisterAction).Methods("POST")
 }

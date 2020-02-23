@@ -7,6 +7,8 @@ type UserRole int
 type User struct {
 	UserId   primitive.ObjectID `bson:"_id" json:"id,omitempty"`
 	Login    string             `json:"login,omitempty"`
+	Name     string             `json:"name,omitempty"`
+	Email    string             `json:"email,omitempty"`
 	Password string             `json:"password,omitempty"`
 	Role     []UserRole         `json:"role,omitempty"`
 }
