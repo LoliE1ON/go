@@ -8,11 +8,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/LoliE1ON/go/Router"
+
 	"github.com/LoliE1ON/go/Net/Db/MongoDb"
 
 	"github.com/pkg/errors"
-
-	"github.com/LoliE1ON/go/Controllers/IndexController"
 
 	"github.com/gorilla/mux"
 
@@ -27,23 +27,27 @@ func main() {
 		}
 	}()
 
+	// Parsing config file
 	config, err := parseConfig()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
+	// Connection to MongoDB
 	err = MongoDb.Connect(config.Mongo)
 	if err != nil {
-		err = errors.Wrap(err, "Error connection to DB...")
+		err = errors.Wrap(err, "Error connection to MongoDB")
 		log.Println(err)
 		return
 	}
 
+	// Router
 	router := mux.NewRouter()
-	router.Use(accessControlMiddleware)
-	router.HandleFunc("/", IndexController.Action).Methods("GET")
+	router.Use(Router.AccessControlMiddleware)
+	Router.Routes(router)
 
+	// Server
 	log.Println("Server started at port:", config.Port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), router); err != nil {
 		log.Println("Starting server failed: ", err)
@@ -51,6 +55,7 @@ func main() {
 
 }
 
+// Parse config file
 func parseConfig() (config Types.ServerConfig, err error) {
 
 	const configFilePath = "serverConfig.json"
@@ -76,18 +81,4 @@ func parseConfig() (config Types.ServerConfig, err error) {
 	}
 
 	return
-}
-
-func accessControlMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS,PUT")
-		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
-
-		if r.Method == "OPTIONS" {
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
 }

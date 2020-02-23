@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 
+	"github.com/pkg/errors"
+
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/LoliE1ON/go/Net/Db/MongoDb"
@@ -20,7 +22,7 @@ func GetAll() (users []User, err error) {
 
 	cur, err := collection.Find(context.Background(), bson.M{}, opts)
 	if err != nil {
-		log.Fatal(err)
+		err = errors.Wrap(err, "Net error! Find error of UserModel.GetAll")
 		return
 	}
 
