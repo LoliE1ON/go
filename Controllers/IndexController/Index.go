@@ -22,5 +22,5 @@ func Action(w http.ResponseWriter, r *http.Request) {
 
 	response.Data = data
 
-	HttpHelper.ResponseWriter(response, w)
+	HttpHelper.ResponseWriter(w, response, 200)
 }

@@ -1,12 +1,12 @@
 package AuthController
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
-
-	"github.com/davecgh/go-spew/spew"
 
 	"github.com/LoliE1ON/go/Models/UserModel"
 
@@ -32,15 +32,30 @@ func LoginAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Select user
 	user, err := UserModel.GetByLogin(requestParams.Login)
 	if err != nil {
-		log.Println("LoginAction: Failed find user", err)
-		http.Error(w, "Server error", http.StatusInternalServerError)
+		response.Error = "User not found"
+		HttpHelper.ResponseWriter(w, response, http.StatusForbidden)
 		return
 	}
-	spew.Dump(user)
+
+	// Check password
+	if user.Password != passwordToHash(requestParams.Password) {
+		response.Error = "Login or password incorrect"
+		HttpHelper.ResponseWriter(w, response, http.StatusForbidden)
+		return
+	}
 
 	response.Data = user
+	HttpHelper.ResponseWriter(w, response, http.StatusOK)
 
-	HttpHelper.ResponseWriter(response, w)
+}
+
+// Convert password to MD5 Hash
+// md5 -_-
+func passwordToHash(text string) string {
+	hash := md5.New()
+	hash.Write([]byte(text))
+	return hex.EncodeToString(hash.Sum(nil))
 }

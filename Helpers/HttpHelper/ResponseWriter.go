@@ -8,7 +8,11 @@ import (
 	"github.com/LoliE1ON/go/Types"
 )
 
-func ResponseWriter(data Types.ResponseData, w http.ResponseWriter) {
+func ResponseWriter(w http.ResponseWriter, data Types.ResponseData, code int) {
+
+	if code == 0 {
+		code = 200
+	}
 
 	jsonBytes, err := json.Marshal(data)
 	if err != nil {
@@ -18,6 +22,7 @@ func ResponseWriter(data Types.ResponseData, w http.ResponseWriter) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
 
 	if _, err = w.Write(jsonBytes); err != nil {
 		log.Println("Writing response failed:", err)
