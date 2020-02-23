@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"github.com/pkg/errors"
 
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -60,4 +62,23 @@ func GetByLogin(login string) (user User, err error) {
 	}
 
 	return
+}
+
+func Register(registerUser User) (userId primitive.ObjectID, err error) {
+
+	collection := Mongo.GetDatabase().Collection("users")
+
+	query, err := collection.InsertOne(context.Background(),
+		bson.D{
+			{"login", registerUser.Login},
+			{"password", registerUser.Password}, // TODO: use bcrypt
+			{"name", registerUser.Name},
+			{"role", []int{0}},
+		})
+	if err != nil {
+		err = errors.Wrap(err, "Net error! Error insert user")
+		return
+	}
+
+	return query.InsertedID.(primitive.ObjectID), err
 }

@@ -6,6 +6,11 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/LoliE1ON/go/Models/TokenModel"
+	"github.com/LoliE1ON/go/Strategies/JwtStrategy"
+
+	"github.com/LoliE1ON/go/Models/UserModel"
+
 	"github.com/LoliE1ON/go/Helpers/ValidateHelper"
 
 	"github.com/LoliE1ON/go/Helpers/HttpHelper"
@@ -45,12 +50,50 @@ func RegisterAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/*data := ResponseSuccess{
-		User:  user,
-		Token: insertToken,
-	}*/
+	// Check login exist
+	_, err = UserModel.GetByLogin(requestParams.Login)
+	if err == nil {
+		response.Error = "Login exist"
+		HttpHelper.ResponseWriter(w, response, http.StatusBadRequest)
+		return
+	}
 
-	response.Data = "Register"
+	// Register new user
+	userId, err := UserModel.Register(UserModel.User{
+		Login:    requestParams.Login,
+		Password: requestParams.Password,
+		Name:     requestParams.Name,
+	})
+	if err != nil {
+		log.Println("Net error:", err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+	}
+
+	// Create new token
+	token, err := JwtStrategy.CreateToken(userId)
+	if err != nil {
+		log.Println("Failed to create JW Token:", err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Save token to db
+	insertToken := TokenModel.UserToken{
+		UserId: userId,
+		Token:  token,
+	}
+	err = TokenModel.Insert(&insertToken)
+	if err != nil {
+		log.Println("Failed to insert JW Token:", err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	data := ResponseRegisterSuccess{
+		Token: insertToken,
+	}
+
+	response.Data = data
 	HttpHelper.ResponseWriter(w, response, http.StatusOK)
 
 }
